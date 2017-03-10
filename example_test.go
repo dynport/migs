@@ -17,5 +17,6 @@ func runMigrations(tx *sql.Tx) {
 }
 
 func migrationFunc(tx Con) error {
-	return nil
+	_, err := tx.Exec("INSERT INTO users (email) VALUES ($1)", "tobias@phraseapp.com")
+	return err
 }
