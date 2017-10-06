@@ -103,7 +103,7 @@ func TestMigrations(t *testing.T) {
 		2: {all[0].Idx, 1},
 		3: {all[0].Statement, "CREATE TABLE users (id SERIAL NOT NULL PRIMARY KEY, email VARCHAR)"},
 		4: {all[1].Idx, 2},
-		5: {all[1].Statement, "github.com/dynport/dgtk/migrations.migFunc"},
+		5: {all[1].Statement, "github.com/dynport/migs.migFunc"},
 		6: {all[0].Executed, false},
 	}
 	for i, tc := range tests {
