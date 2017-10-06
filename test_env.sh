@@ -16,4 +16,4 @@ if [[ -z $port ]]; then
 fi
 
 echo "export TEST_WITH_DB=true"
-echo "export TEST_DATABSE_URL=postgres://postgres@127.0.0.1:${port}/dgtk_migrations?sslmode=disable"
+echo "export TEST_DATABSE_URL=postgres://postgres@127.0.0.1:${port}/migs_test?sslmode=disable"

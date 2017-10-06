@@ -1,6 +1,6 @@
 database_test:
-  image: postgres:9.6.2
+  image: postgres:9.6.5
   ports:
       - "5432"
   environment:
-    POSTGRES_DB: dgtk_migrations
+    POSTGRES_DB: migs_test

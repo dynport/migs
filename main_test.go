@@ -18,7 +18,7 @@ func databaseURL() string {
 	if env != "" {
 		return env
 	}
-	return "postgres://localhost/dgtk_migrations?sslmode=disable"
+	return "postgres://localhost/migs_test?sslmode=disable"
 }
 
 func testConnect(t *testing.T) *sql.Tx {
