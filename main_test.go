@@ -36,6 +36,48 @@ func testConnect(t *testing.T) *sql.Tx {
 	return tx
 }
 
+func TestPending(t *testing.T) {
+	if os.Getenv("TEST_WITH_DB") != "true" {
+		t.SkipNow()
+	}
+
+	migs := New(
+		"CREATE TABLE users (id SERIAL NOT NULL PRIMARY KEY, name VARCHAR NOT NULL)",
+		//insertUsers,
+	)
+	tx := testConnect(t)
+	defer tx.Rollback()
+
+	_, err := migs.setup(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pending, err := migs.Pending(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(pending) != 1 {
+		t.Errorf("expected 1 pending, was %d", len(pending))
+	}
+	err = migs.ExecuteTx(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	migs = New(
+		"CREATE TABLE users (id SERIAL NOT NULL PRIMARY KEY, name VARCHAR NOT NULL)",
+		insertUsers,
+	)
+
+	pending, err = migs.Pending(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(pending) != 1 {
+		t.Errorf("expected 1 pending, was %d", len(pending))
+	}
+}
+
 func TestRun(t *testing.T) {
 	if os.Getenv("TEST_WITH_DB") != "true" {
 		t.SkipNow()
@@ -79,7 +121,6 @@ func TestRun(t *testing.T) {
 			t.Errorf("%d: want=%#v has=%#v", i, tc.Want, tc.Has)
 		}
 	}
-
 }
 
 func TestMigrations(t *testing.T) {

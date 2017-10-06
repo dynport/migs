@@ -34,6 +34,19 @@ type Migrations struct {
 	steps  []interface{}
 }
 
+func (list Migrations) Pending(tx Tx) (out []*Migration, err error) {
+	all, err := list.All(tx)
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range all {
+		if !m.Executed {
+			out = append(out, m)
+		}
+	}
+	return out, nil
+}
+
 func (list Migrations) Execute(db *sql.DB) error {
 	tx, e := db.Begin()
 	if e != nil {
