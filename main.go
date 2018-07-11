@@ -188,26 +188,28 @@ func (list Migrations) setup(tx Tx) (sql.Result, error) {
 }
 
 func (m *Migration) debug(t string, dur time.Duration) {
-	m.logWith(m.Logger.Debugf, t, dur)
+	if m.Logger != nil {
+		m.logWith(m.Logger.Debugf, t, dur)
+	}
 }
 
 func (m *Migration) log(t string, dur time.Duration) {
-	m.logWith(m.Logger.Printf, t, dur)
+	if m.Logger != nil {
+		m.logWith(m.Logger.Printf, t, dur)
+	}
 }
 
 func (m *Migration) logWith(logger func(string, ...interface{}), t string, dur time.Duration) {
-	if m.Logger != nil {
-		out := []string{}
-		lines := strings.Split(strings.TrimSpace(m.Statement), "\n")
-		for _, l := range lines {
-			out = append(out, strings.TrimSpace(l))
-		}
-		msg := fmt.Sprintf("%s: migration %d %q %q", t, m.Idx, m.checksum(), strings.Join(strings.Fields(strings.Join(out, " ")), " "))
-		if dur != 0 {
-			msg += fmt.Sprintf(" [%.06f]", dur.Seconds())
-		}
-		logger(msg)
+	out := []string{}
+	lines := strings.Split(strings.TrimSpace(m.Statement), "\n")
+	for _, l := range lines {
+		out = append(out, strings.TrimSpace(l))
 	}
+	msg := fmt.Sprintf("%s: migration %d %q %q", t, m.Idx, m.checksum(), strings.Join(strings.Fields(strings.Join(out, " ")), " "))
+	if dur != 0 {
+		msg += fmt.Sprintf(" [%.06f]", dur.Seconds())
+	}
+	logger(msg)
 }
 
 func (m *Migration) checksum() string {
