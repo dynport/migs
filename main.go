@@ -32,7 +32,7 @@ type logger interface {
 }
 
 type Migrations struct {
-	Logger *logrus.Logger
+	Logger logrus.FieldLogger
 	steps  []interface{}
 }
 
@@ -168,7 +168,7 @@ type Migration struct {
 	Idx       int
 	Statement string
 	Func      func(Con) error
-	Logger    *logrus.Logger
+	Logger    logrus.FieldLogger
 	MD5       string
 	Executed  bool
 }
