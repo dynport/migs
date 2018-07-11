@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Con interface {
@@ -30,7 +32,7 @@ type logger interface {
 }
 
 type Migrations struct {
-	Logger logger
+	Logger *logrus.Logger
 	steps  []interface{}
 }
 
@@ -166,7 +168,7 @@ type Migration struct {
 	Idx       int
 	Statement string
 	Func      func(Con) error
-	Logger    logger
+	Logger    *logrus.Logger
 	MD5       string
 	Executed  bool
 }
@@ -185,7 +187,15 @@ func (list Migrations) setup(tx Tx) (sql.Result, error) {
 	return nil, nil
 }
 
+func (m *Migration) debug(t string, dur time.Duration) {
+	m.logWith(m.Logger.Debugf, t, dur)
+}
+
 func (m *Migration) log(t string, dur time.Duration) {
+	m.logWith(m.Logger.Printf, t, dur)
+}
+
+func (m *Migration) logWith(logger func(string, ...interface{}), t string, dur time.Duration) {
 	if m.Logger != nil {
 		out := []string{}
 		lines := strings.Split(strings.TrimSpace(m.Statement), "\n")
@@ -196,7 +206,7 @@ func (m *Migration) log(t string, dur time.Duration) {
 		if dur != 0 {
 			msg += fmt.Sprintf(" [%.06f]", dur.Seconds())
 		}
-		m.Logger.Printf(msg)
+		logger(msg)
 	}
 }
 
@@ -217,7 +227,7 @@ func (m *Migration) Execute(tx Tx) error {
 		}
 		cs = strings.Replace(cs, "-", "", -1)
 		if statement == m.Statement {
-			m.log("SKIP", 0)
+			m.debug("SKIP", 0)
 			return nil
 		} else {
 			return fmt.Errorf("MIGRATION MISMATCH:\n<<<<<<< code migration %d\n%q\n=======\n%q\n>>>>>>> db migration\n", m.Idx, m.Statement, statement)
